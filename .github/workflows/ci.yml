@@ -25,8 +25,8 @@ jobs:
 
     - name: Run Retraining via MLflow Project
       run: |
-        # Mengganti --no-conda dengan --env-manager local sesuai standar MLflow 2.x
-        mlflow run MLProject --env-manager local
+        # Menentukan nama eksperimen langsung dari CLI untuk menyelaraskan Run ID environment
+        mlflow run MLProject --env-manager local --experiment-name "CI_Automated_Retraining"
 
     - name: Locate MLflow Model Artifact
       id: locate-model
