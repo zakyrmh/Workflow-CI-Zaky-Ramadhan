@@ -16,7 +16,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12.10'
-        cache: 'pip'
+        # Baris cache: pip telah dihapus untuk menghindari pencarian otomatis requirements.txt
 
     - name: Install Base Dependencies
       run: |
@@ -25,7 +25,7 @@ jobs:
 
     - name: Run Retraining via MLflow Project
       run: |
-        # Menjalankan komponen MLflow Project
+        # Menjalankan komponen MLflow Project tanpa env conda bawaan runner
         mlflow run MLProject --no-conda
 
     - name: Locate MLflow Model Artifact
@@ -44,7 +44,7 @@ jobs:
 
     - name: Build Docker Image via MLflow Build-Docker
       run: |
-        # Perintah mutlak Advance dari Dicoding untuk mengemas model menjadi Image
+        # Mengemas model MLflow menjadi Image Docker siap saji
         mlflow models build-docker -m "${{ env.FOUND_PATH }}" -n "${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-service:latest" --enable-mlflow-deployment
 
     - name: Push Container Image to Docker Hub
