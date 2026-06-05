@@ -1,0 +1,59 @@
+name: CI Retraining Pipeline & Docker Push
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set Up Python 3.12.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12.10'
+        cache: 'pip'
+
+    - name: Install Base Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install mlflow==2.19.0 pandas scikit-learn matplotlib seaborn
+
+    - name: Run Retraining via MLflow Project
+      run: |
+        # Menjalankan komponen MLflow Project
+        mlflow run MLProject --no-conda
+
+    - name: Locate MLflow Model Artifact
+      id: locate-model
+      run: |
+        # Mencari folder model hasil autolog secara dinamis
+        MODEL_PATH=$(find mlruns/ -name "model" -type d | head -n 1)
+        echo "FOUND_PATH=$MODEL_PATH" >> $GITHUB_ENV
+        echo "Model ditemukan di jalur: $MODEL_PATH"
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker Image via MLflow Build-Docker
+      run: |
+        # Perintah mutlak Advance dari Dicoding untuk mengemas model menjadi Image
+        mlflow models build-docker -m "${{ env.FOUND_PATH }}" -n "${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-service:latest" --enable-mlflow-deployment
+
+    - name: Push Container Image to Docker Hub
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-service:latest
+
+    - name: Commit and Save Artifacts to GitHub
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add mlruns/
+        git diff-index --quiet HEAD || (git commit -m "Continuous Integration: Menyimpan artefak retraining terbaru" && git push)
