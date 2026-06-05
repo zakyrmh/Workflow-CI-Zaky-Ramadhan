@@ -25,8 +25,8 @@ jobs:
 
     - name: Run Retraining via MLflow Project
       run: |
-        # Menjalankan komponen MLflow Project tanpa env conda bawaan runner
-        mlflow run MLProject --no-conda
+        # Mengganti --no-conda dengan --env-manager local sesuai standar MLflow 2.x
+        mlflow run MLProject --env-manager local
 
     - name: Locate MLflow Model Artifact
       id: locate-model
