@@ -1,1 +1,1 @@
-https://hub.docker.com/repository/docker/zakyrmh/wine-quality-service
+https://hub.docker.com/repository/docker/zakyrmh/chemical-solubility-service

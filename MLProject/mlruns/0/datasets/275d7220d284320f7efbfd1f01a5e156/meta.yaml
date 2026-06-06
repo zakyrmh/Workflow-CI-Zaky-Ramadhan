@@ -1,0 +1,19 @@
+digest: dd141cb3
+name: dataset
+profile: '{"num_rows": 7985, "num_elements": 135745}'
+schema: '{"mlflow_colspec": [{"type": "double", "name": "MolWt", "required": true},
+  {"type": "double", "name": "MolLogP", "required": true}, {"type": "double", "name":
+  "MolMR", "required": true}, {"type": "double", "name": "HeavyAtomCount", "required":
+  true}, {"type": "double", "name": "NumHAcceptors", "required": true}, {"type": "double",
+  "name": "NumHDonors", "required": true}, {"type": "double", "name": "NumHeteroatoms",
+  "required": true}, {"type": "double", "name": "NumRotatableBonds", "required": true},
+  {"type": "double", "name": "NumValenceElectrons", "required": true}, {"type": "double",
+  "name": "NumAromaticRings", "required": true}, {"type": "double", "name": "NumSaturatedRings",
+  "required": true}, {"type": "double", "name": "NumAliphaticRings", "required": true},
+  {"type": "double", "name": "RingCount", "required": true}, {"type": "double", "name":
+  "TPSA", "required": true}, {"type": "double", "name": "LabuteASA", "required": true},
+  {"type": "double", "name": "BalabanJ", "required": true}, {"type": "double", "name":
+  "BertzCT", "required": true}]}'
+source: '{"tags": {"mlflow.user": "Administrator", "mlflow.source.name": "modelling.py",
+  "mlflow.source.type": "LOCAL", "mlflow.source.git.commit": "2110e792d9bee8d4665708ef1c1537c874b293aa"}}'
+source_type: code

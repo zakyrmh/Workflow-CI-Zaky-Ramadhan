@@ -1,4 +1,4 @@
-name: Wine_Quality_Continuous_Retraining
+name: Chemical_Solubility_Continuous_Retraining
 
 conda_env: conda.yaml
 
