@@ -1,59 +1,41 @@
-name: CI Retraining Pipeline & Docker Push
+name: Machine Learning Continuous Integration Pipeline
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
-  build-and-push:
+  build-and-retrain:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-
-    - name: Set Up Python 3.12.10
-      uses: actions/setup-python@v5
+    - name: Checkout Source Code
+      uses: actions/checkout@v3
       with:
-        python-version: '3.12.10'
-        # Baris cache: pip telah dihapus untuk menghindari pencarian otomatis requirements.txt
+        persist-credentials: true
 
-    - name: Install Base Dependencies
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install System Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install mlflow==2.19.0 pandas scikit-learn matplotlib seaborn
+        pip install mlflow pandas scikit-learn
 
-    - name: Run Retraining via MLflow Project
+    - name: Run MLProject Continuous Retraining
       run: |
-        # Menentukan nama eksperimen langsung dari CLI untuk menyelaraskan Run ID environment
-        mlflow run MLProject --env-manager local --experiment-name "CI_Automated_Retraining"
+        mlflow run ./MLProject --env-manager=local
 
-    - name: Locate MLflow Model Artifact
-      id: locate-model
+    - name: Save Newly Generated mlruns to GitHub Repository
       run: |
-        # Mencari folder model hasil autolog secara dinamis
-        MODEL_PATH=$(find mlruns/ -name "model" -type d | head -n 1)
-        echo "FOUND_PATH=$MODEL_PATH" >> $GITHUB_ENV
-        echo "Model ditemukan di jalur: $MODEL_PATH"
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Build Docker Image via MLflow Build-Docker
-      run: |
-        # Mengemas model MLflow menjadi Image Docker siap saji
-        mlflow models build-docker -m "${{ env.FOUND_PATH }}" -n "${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-service:latest" --enable-mlflow-deployment
-
-    - name: Push Container Image to Docker Hub
-      run: |
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-service:latest
-
-    - name: Commit and Save Artifacts to GitHub
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add mlruns/
-        git diff-index --quiet HEAD || (git commit -m "Continuous Integration: Menyimpan artefak retraining terbaru" && git push)
+        git config --global user.name "zakyrmh"
+        git config --global user.email "zakyramadhan@example.com"
+        
+        git add MLProject/mlruns/ || git add mlruns/
+        
+        git commit -m "Automated save mlruns from GitHub CI run [skip ci]" || echo "No changes to commit"
+        git push origin HEAD:${{ github.ref_name }}
